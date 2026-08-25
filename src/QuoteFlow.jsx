@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import Brand from "./Brand.jsx";
+import Brand, { Mark } from "./Brand.jsx";
 import Footer from "./Footer.jsx";
 import {
   CONDITIONS,
@@ -482,7 +482,10 @@ export default function QuoteFlow() {
             <span>Step 3 of 4</span>
           </div>
           <MetroChip metro={metro} guessed={metroSource === "ip"} onChange={changeMetro} />
-          <span className="flag">Estimate — not a bid</span>
+          <div className="estimate-head">
+            <span className="flag">Estimate — not a bid</span>
+            <Mark className="mark mark-sm" />
+          </div>
           <p className="estimate-range">
             {formatMoney(estimate.low)} – {formatMoney(estimate.high)}
           </p>
