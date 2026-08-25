@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Brand from "./Brand.jsx";
+import Footer from "./Footer.jsx";
 import { CONDITIONS, TIMELINES, formatMoney } from "./estimate.js";
 import { clearLeads, loadLeads } from "./leads.js";
 
@@ -72,6 +73,7 @@ export default function LeadsPage() {
           </button>
         </div>
       )}
+      <Footer />
     </div>
   );
 }

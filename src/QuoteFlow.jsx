@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Brand from "./Brand.jsx";
+import Footer from "./Footer.jsx";
 import {
   CONDITIONS,
   METROS,
@@ -516,7 +517,12 @@ export default function QuoteFlow() {
           </ul>
           <p className="fineprint" style={{ marginTop: 16 }}>
             Next we take a name, phone, and email so a local owner-operator
-            crew can be matched later. No one is booked from this screen.
+            crew can be matched later. No one is booked from this screen. Read
+            how matching and the $150 walkthrough deposit work in{" "}
+            <Link to="/terms" target="_blank" rel="noreferrer">
+              Terms
+            </Link>{" "}
+            before you leave contact info.
           </p>
           <div className="actions">
             <button type="button" className="btn primary" onClick={() => setStep("contact")}>
@@ -541,7 +547,12 @@ export default function QuoteFlow() {
           <h2>Who should a crew call?</h2>
           <p className="lede">
             We store this on this device for now. Curbquote is the matching
-            layer — not the contractor.
+            layer — not the contractor. How estimates, crew matching, and the
+            $150 walkthrough deposit work is in{" "}
+            <Link to="/terms" target="_blank" rel="noreferrer">
+              Terms
+            </Link>
+            .
           </p>
           {error && <p className="error">{error}</p>}
           <form onSubmit={submitLead}>
@@ -578,7 +589,12 @@ export default function QuoteFlow() {
             </div>
             <p className="hint">
               Range on file: {formatMoney(estimate.low)} – {formatMoney(estimate.high)}. Still an
-              estimate, not a contract.
+              estimate, not a contract. Leaving this info is not a payment or a
+              booking. See{" "}
+              <Link to="/terms" target="_blank" rel="noreferrer">
+                Terms
+              </Link>{" "}
+              before you submit.
             </p>
             <div className="actions">
               <button type="submit" className="btn primary">
@@ -621,10 +637,7 @@ export default function QuoteFlow() {
         </section>
       )}
 
-      <footer className="footer-links">
-        <span>Five metros only. Third-party crews.</span>
-        <Link to="/leads">Leads on this device</Link>
-      </footer>
+      <Footer />
     </div>
   );
 }
