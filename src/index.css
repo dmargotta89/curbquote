@@ -543,6 +543,10 @@ input:focus-visible {
   padding-left: 1.15em;
 }
 
+.terms-section p + ul {
+  margin-top: 10px;
+}
+
 .error {
   color: #9b2c2c;
   font-size: 0.9rem;
