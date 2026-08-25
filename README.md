@@ -13,7 +13,9 @@ npm run dev
 
 Open the URL Vite prints (usually http://localhost:5173).
 
-A first-time visit should read as: pick a metro → add a photo of the house → answer a few questions → see an estimate range → leave name, phone, and email.
+A first-time visit should read as: add a photo of the house → answer a few questions → see an estimate range → leave name, phone, and email.
+
+If this connection looks like Dallas–Fort Worth, Atlanta, Phoenix, Charlotte, or Tampa Bay, Curbquote preselects that metro and skips the city picker. The guess is a small “change” chip — IP lookup is often wrong on a VPN or when traveling. If the lookup is missing, unclear, or outside those five, the metro picker is shown as before.
 
 Leads captured on this device: [/leads](/leads).
 

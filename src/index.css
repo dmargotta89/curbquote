@@ -211,6 +211,48 @@ h2 {
   cursor: pointer;
 }
 
+section > .back {
+  display: inline-block;
+  margin-bottom: 12px;
+}
+
+.metro-chip-row {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 14px;
+}
+
+.metro-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  width: fit-content;
+  border: 1px solid var(--line);
+  background: #eef5f1;
+  color: var(--porch);
+  border-radius: 999px;
+  padding: 6px 10px 6px 12px;
+  font-size: 0.86rem;
+  font-weight: 650;
+}
+
+.metro-chip button {
+  appearance: none;
+  border: 0;
+  background: none;
+  color: var(--porch);
+  font-weight: 750;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  padding: 0 4px;
+  cursor: pointer;
+}
+
+.metro-guess {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
 .drop {
   position: relative;
   display: grid;
