@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Brand from "./Brand.jsx";
 import {
@@ -9,6 +9,7 @@ import {
   formatMoney,
   getMetro,
 } from "./estimate.js";
+import { detectMetroFromIp } from "./geo.js";
 import { saveLead } from "./leads.js";
 import { compressImage, isImageFile } from "./photos.js";
 
@@ -41,12 +42,35 @@ function Choice({ selected, onClick, children }) {
   );
 }
 
+function MetroChip({ metro, guessed, onChange }) {
+  if (!metro) return null;
+  return (
+    <div className="metro-chip-row">
+      <span className="metro-chip">
+        {metro.name}
+        <span aria-hidden="true"> · </span>
+        <button type="button" onClick={onChange}>
+          change
+        </button>
+      </span>
+      {guessed && (
+        <span className="metro-guess">
+          Guessed from this connection. Change if the house is in another metro
+          — IP lookup is often wrong on VPN or travel.
+        </span>
+      )}
+    </div>
+  );
+}
+
 export default function QuoteFlow() {
-  const [step, setStep] = useState("metro");
+  const [step, setStep] = useState("checking");
   const [form, setForm] = useState(EMPTY);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [drag, setDrag] = useState(false);
+  const [metroSource, setMetroSource] = useState(null);
+  const [resumeStep, setResumeStep] = useState("photos");
 
   const metro = getMetro(form.metroId);
   const estimate = useMemo(
@@ -61,6 +85,23 @@ export default function QuoteFlow() {
       }),
     [form],
   );
+
+  useEffect(() => {
+    let cancelled = false;
+    detectMetroFromIp().then((result) => {
+      if (cancelled) return;
+      if (result.metroId) {
+        setForm((current) => ({ ...current, metroId: result.metroId }));
+        setMetroSource("ip");
+        setStep("photos");
+      } else {
+        setStep("metro");
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   function patch(partial) {
     setError("");
@@ -94,9 +135,9 @@ export default function QuoteFlow() {
     patch({ photos: form.photos.filter((photo) => photo.id !== id) });
   }
 
-  function goPhotos(metroId) {
-    patch({ metroId });
-    setStep("photos");
+  function changeMetro() {
+    setResumeStep(step === "metro" ? "photos" : step);
+    setStep("metro");
   }
 
   function goDetails() {
@@ -165,11 +206,13 @@ export default function QuoteFlow() {
     setStep("done");
   }
 
+  const changing = Boolean(metro) && step === "metro";
+
   return (
     <div className="shell">
       <Brand />
 
-      {step === "metro" && (
+      {step === "checking" && (
         <section>
           <h1>An honest ballpark for painting the outside of your house.</h1>
           <p className="lede">
@@ -182,14 +225,51 @@ export default function QuoteFlow() {
             sign. It is a planning number so you know the neighborhood before a
             crew walks the job.
           </p>
-          <h2>Where is the house?</h2>
+          <p className="hint">Checking this connection for one of our five metros…</p>
+        </section>
+      )}
+
+      {step === "metro" && (
+        <section>
+          {changing ? (
+            <>
+              <button type="button" className="back" onClick={() => setStep(resumeStep)}>
+                ← Keep {metro.name}
+              </button>
+              <h2>Where is the house?</h2>
+              <p className="lede">
+                {metroSource === "ip"
+                  ? `We guessed ${metro.name} from this connection. That can be wrong on a VPN or if you are traveling. Pick the metro for the house.`
+                  : "Pick the metro for the house."}
+              </p>
+            </>
+          ) : (
+            <>
+              <h1>An honest ballpark for painting the outside of your house.</h1>
+              <p className="lede">
+                Homeowners in five metros upload a photo, answer a few questions,
+                and get a range — not a contract price. Curbquote is not the
+                painter. Local owner-operator crews are matched later.
+              </p>
+              <p className="hero-note">
+                We do not hold a contractor license, and this is not a bid you can
+                sign. It is a planning number so you know the neighborhood before a
+                crew walks the job.
+              </p>
+              <h2>Where is the house?</h2>
+            </>
+          )}
           <div className="metro-grid">
             {METROS.map((item) => (
               <button
                 key={item.id}
                 type="button"
                 className="metro"
-                onClick={() => goPhotos(item.id)}
+                onClick={() => {
+                  patch({ metroId: item.id });
+                  setMetroSource("user");
+                  setStep(changing ? resumeStep : "photos");
+                }}
               >
                 <span>
                   <strong>{item.name}</strong>
@@ -207,11 +287,9 @@ export default function QuoteFlow() {
       {step === "photos" && (
         <section className="card">
           <div className="step-kicker">
-            <button type="button" className="back" onClick={() => setStep("metro")}>
-              ← Markets
-            </button>
-            <span>Step 1 of 4 · {metro?.name}</span>
+            <span>Step 1 of 4</span>
           </div>
+          <MetroChip metro={metro} guessed={metroSource === "ip"} onChange={changeMetro} />
           <h2>Photo of the house</h2>
           <p className="lede">
             A street-facing shot of the front is enough. Extra sides, trim, or
@@ -277,6 +355,7 @@ export default function QuoteFlow() {
             </button>
             <span>Step 2 of 4</span>
           </div>
+          <MetroChip metro={metro} guessed={metroSource === "ip"} onChange={changeMetro} />
           <h2>A few facts about the house</h2>
           {error && <p className="error">{error}</p>}
 
@@ -401,6 +480,7 @@ export default function QuoteFlow() {
             </button>
             <span>Step 3 of 4</span>
           </div>
+          <MetroChip metro={metro} guessed={metroSource === "ip"} onChange={changeMetro} />
           <span className="flag">Estimate — not a bid</span>
           <p className="estimate-range">
             {formatMoney(estimate.low)} – {formatMoney(estimate.high)}
@@ -457,6 +537,7 @@ export default function QuoteFlow() {
             </button>
             <span>Step 4 of 4</span>
           </div>
+          <MetroChip metro={metro} guessed={metroSource === "ip"} onChange={changeMetro} />
           <h2>Who should a crew call?</h2>
           <p className="lede">
             We store this on this device for now. Curbquote is the matching
@@ -510,6 +591,7 @@ export default function QuoteFlow() {
 
       {step === "done" && estimate && (
         <section className="card">
+          <MetroChip metro={metro} guessed={metroSource === "ip"} onChange={changeMetro} />
           <span className="flag">Request saved on this device</span>
           <h2>Thanks. That is as far as v1 goes.</h2>
           <p className="lede">
@@ -523,8 +605,11 @@ export default function QuoteFlow() {
               type="button"
               className="btn primary"
               onClick={() => {
-                setForm(EMPTY);
-                setStep("metro");
+                const keepMetro = form.metroId;
+                const keepSource = metroSource;
+                setForm({ ...EMPTY, metroId: keepMetro });
+                setMetroSource(keepSource);
+                setStep("photos");
               }}
             >
               Start another house
