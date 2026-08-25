@@ -24,8 +24,10 @@ export default function LeadsPage() {
       </div>
       <h1>Leads</h1>
       <p className="lede">
-        v1 stores requests in this browser’s localStorage. There is no server,
-        and nothing is sent to a crew yet.
+        Requests on this page are the copy saved in this browser. Live
+        submissions also email{" "}
+        <a href="mailto:hello@curbquote.ai">hello@curbquote.ai</a>
+        . Nothing here is sent to a crew.
       </p>
       {leads.length === 0 ? (
         <p className="empty">No leads on this device yet.</p>
@@ -49,6 +51,12 @@ export default function LeadsPage() {
                 · {labelFor(CONDITIONS, lead.condition)} ·{" "}
                 {lead.trim ? "trim included" : "body only"} · HOA{" "}
                 {lead.hoa ? "yes" : "no"} · {labelFor(TIMELINES, lead.timeline)}
+                {lead.notes ? (
+                  <>
+                    <br />
+                    Notes: {lead.notes}
+                  </>
+                ) : null}
                 <br />
                 {new Date(lead.createdAt).toLocaleString()}
               </p>

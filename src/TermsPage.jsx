@@ -25,7 +25,9 @@ export default function TermsPage() {
           <p>
             Curbquote is not the painter and does not claim a contractor
             license. The crew is a third-party owner-operator. Curbquote is
-            not the general contractor of record.
+            not the general contractor of record. When you submit a quote
+            request, Curbquote emails it to{" "}
+            <a href="mailto:hello@curbquote.ai">hello@curbquote.ai</a>.
           </p>
         </div>
 

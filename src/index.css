@@ -360,7 +360,8 @@ section > .back {
 input[type="text"],
 input[type="tel"],
 input[type="email"],
-input[type="number"] {
+input[type="number"],
+textarea {
   width: 100%;
   border: 1px solid #d7cbb8;
   background: #fff;
@@ -369,7 +370,13 @@ input[type="number"] {
   color: var(--ink);
 }
 
-input:focus-visible {
+textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+
+input:focus-visible,
+textarea:focus-visible {
   outline: 2px solid var(--porch);
   outline-offset: 1px;
 }

@@ -11,8 +11,10 @@ import {
   getMetro,
 } from "./estimate.js";
 import { detectMetroFromIp } from "./geo.js";
+import { fallbackMailto } from "./leadEmail.js";
 import { saveLead } from "./leads.js";
 import { compressImage, isImageFile } from "./photos.js";
+import { sendLead } from "./sendLead.js";
 
 const EMPTY = {
   metroId: "",
@@ -28,6 +30,7 @@ const EMPTY = {
   name: "",
   phone: "",
   email: "",
+  notes: "",
 };
 
 function Choice({ selected, onClick, children }) {
@@ -72,6 +75,8 @@ export default function QuoteFlow() {
   const [drag, setDrag] = useState(false);
   const [metroSource, setMetroSource] = useState(null);
   const [resumeStep, setResumeStep] = useState("photos");
+  const [delivered, setDelivered] = useState(false);
+  const [submittedLead, setSubmittedLead] = useState(null);
 
   const metro = getMetro(form.metroId);
   const estimate = useMemo(
@@ -164,11 +169,13 @@ export default function QuoteFlow() {
     setStep("estimate");
   }
 
-  function submitLead(event) {
+  async function submitLead(event) {
     event.preventDefault();
+    if (busy) return;
     const name = form.name.trim();
     const email = form.email.trim();
     const phone = form.phone.replace(/[^\d]/g, "");
+    const notes = form.notes.trim();
     if (!name) {
       setError("Name is required.");
       return;
@@ -201,10 +208,37 @@ export default function QuoteFlow() {
       name,
       phone,
       email,
+      notes,
       photos: form.photos,
     };
     saveLead(lead);
+    setBusy(true);
+    setError("");
+    let ok = false;
+    try {
+      const result = await sendLead(lead);
+      ok = Boolean(result?.ok);
+    } catch {
+      ok = false;
+    }
+    setSubmittedLead(lead);
+    setDelivered(ok);
+    setBusy(false);
     setStep("done");
+  }
+
+  async function retrySend() {
+    if (!submittedLead || busy) return;
+    setBusy(true);
+    let ok = false;
+    try {
+      const result = await sendLead(submittedLead);
+      ok = Boolean(result?.ok);
+    } catch {
+      ok = false;
+    }
+    setDelivered(ok);
+    setBusy(false);
   }
 
   const changing = Boolean(metro) && step === "metro";
@@ -544,11 +578,13 @@ export default function QuoteFlow() {
             <span>Step 4 of 4</span>
           </div>
           <MetroChip metro={metro} guessed={metroSource === "ip"} onChange={changeMetro} />
-          <h2>Who should a crew call?</h2>
+          <h2>Who should we follow up with?</h2>
           <p className="lede">
-            We store this on this device for now. Curbquote is the matching
-            layer — not the contractor. How estimates, crew matching, and the
-            $150 walkthrough deposit work is in{" "}
+            Curbquote emails this request to{" "}
+            <a href="mailto:hello@curbquote.ai">hello@curbquote.ai</a>
+            . A copy also stays on this device if the network fails. Curbquote
+            is the matching layer — not the contractor. How estimates, crew
+            matching, and the $150 walkthrough deposit work is in{" "}
             <Link to="/terms" target="_blank" rel="noreferrer">
               Terms
             </Link>
@@ -587,6 +623,16 @@ export default function QuoteFlow() {
                 onChange={(event) => patch({ email: event.target.value })}
               />
             </div>
+            <div className="field">
+              <label htmlFor="notes">Notes (optional)</label>
+              <textarea
+                id="notes"
+                rows={3}
+                placeholder="Anything we should know about the house"
+                value={form.notes}
+                onChange={(event) => patch({ notes: event.target.value })}
+              />
+            </div>
             <p className="hint">
               Range on file: {formatMoney(estimate.low)} – {formatMoney(estimate.high)}. Still an
               estimate, not a contract. Leaving this info is not a payment or a
@@ -597,8 +643,8 @@ export default function QuoteFlow() {
               before you submit.
             </p>
             <div className="actions">
-              <button type="submit" className="btn primary">
-                Save my request
+              <button type="submit" className="btn primary" disabled={busy}>
+                {busy ? "Sending…" : "Send my request"}
               </button>
             </div>
           </form>
@@ -608,23 +654,52 @@ export default function QuoteFlow() {
       {step === "done" && estimate && (
         <section className="card">
           <MetroChip metro={metro} guessed={metroSource === "ip"} onChange={changeMetro} />
-          <span className="flag">Request saved on this device</span>
-          <h2>Thanks. That is as far as v1 goes.</h2>
-          <p className="lede">
-            {form.name.split(" ")[0]}, we have your {metro.name} estimate of{" "}
-            {formatMoney(estimate.low)} – {formatMoney(estimate.high)} and the
-            photo of the house. A matching step with a third-party
-            owner-operator crew is not wired up yet.
-          </p>
+          {delivered ? (
+            <>
+              <span className="flag">Request received</span>
+              <h2>Curbquote has your request.</h2>
+              <p className="lede">
+                {form.name.split(" ")[0]}, we emailed your {metro.name} estimate
+                of {formatMoney(estimate.low)} – {formatMoney(estimate.high)} to{" "}
+                <a href="mailto:hello@curbquote.ai">hello@curbquote.ai</a>
+                . We will follow up. No crew is matched or assigned from this
+                screen — matching is still done by hand.
+              </p>
+            </>
+          ) : (
+            <>
+              <span className="flag">Saved on this device</span>
+              <h2>This device has the request. Curbquote may not.</h2>
+              <p className="lede">
+                {form.name.split(" ")[0]}, the {metro.name} estimate of{" "}
+                {formatMoney(estimate.low)} – {formatMoney(estimate.high)} is
+                saved in this browser, but it did not reach hello@curbquote.ai.
+                Email that inbox or try sending again. Do not wait for a crew
+                — none was contacted.
+              </p>
+            </>
+          )}
           <div className="actions">
+            {!delivered && (
+              <>
+                <a className="btn primary" href={fallbackMailto(submittedLead || { ...form, metroName: metro?.name, estimateLow: estimate.low, estimateHigh: estimate.high, createdAt: new Date().toISOString() })}>
+                  Email hello@curbquote.ai
+                </a>
+                <button type="button" className="btn ghost" onClick={retrySend} disabled={busy}>
+                  {busy ? "Sending…" : "Try sending again"}
+                </button>
+              </>
+            )}
             <button
               type="button"
-              className="btn primary"
+              className={delivered ? "btn primary" : "btn ghost"}
               onClick={() => {
                 const keepMetro = form.metroId;
                 const keepSource = metroSource;
                 setForm({ ...EMPTY, metroId: keepMetro });
                 setMetroSource(keepSource);
+                setDelivered(false);
+                setSubmittedLead(null);
                 setStep("photos");
               }}
             >
