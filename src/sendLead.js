@@ -1,3 +1,5 @@
+import { formatLeadEmail, INBOX } from "./leadEmail.js";
+
 const MAX_JSON_CHARS = 900_000;
 const MAX_PHOTO_BYTES = 1_000_000;
 
@@ -78,18 +80,53 @@ export async function buildLeadPayload(lead) {
   return withPhoto;
 }
 
-export async function sendLead(lead) {
-  const body = await buildLeadPayload(lead);
-  const response = await fetch("/api/lead", {
+function formSubmitBody(fields) {
+  return {
+    _subject: `Curbquote lead — ${fields.metroName || fields.metroId} — ${fields.name}`,
+    _template: "box",
+    _captcha: "false",
+    name: fields.name,
+    phone: fields.phone,
+    email: fields.email,
+    metro: fields.metroName || fields.metroId,
+    message: formatLeadEmail(fields, { photoAttached: false }),
+  };
+}
+
+export async function sendViaFormSubmit(fields, fetchImpl = fetch) {
+  const response = await fetchImpl(`https://formsubmit.co/ajax/${INBOX}`, {
     method: "POST",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify(formSubmitBody(fields)),
   });
-  if (!response.ok) {
-    return { ok: false, status: response.status };
+  const data = await response.json().catch(() => ({}));
+  const ok = response.ok && (data.success === true || data.success === "true");
+  if (!ok) return { ok: false };
+  return { ok: true, via: "formsubmit" };
+}
+
+export async function sendLead(lead, fetchImpl = fetch) {
+  const body = await buildLeadPayload(lead);
+  try {
+    const response = await fetchImpl("/api/lead", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+    if (response.ok) return { ok: true, via: "api" };
+  } catch {
+    // Browser FormSubmit is the zero-config path when the function cannot
+    // reach FormSubmit (Cloudflare often challenges datacenter IPs).
   }
-  return { ok: true };
+  try {
+    return await sendViaFormSubmit(body, fetchImpl);
+  } catch {
+    return { ok: false };
+  }
 }

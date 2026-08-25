@@ -25,7 +25,7 @@ Leads captured on this device: [/leads](/leads).
 
 1. The homeowner submits the existing contact step. Fields always POST to `/api/lead`. A house photo is attached only if a thumbnail stays under ~1MB; oversized photos are skipped rather than failing the request.
 2. If `RESEND_API_KEY` is set in the Vercel project (or local env), the function emails **hello@curbquote.ai** via [Resend](https://resend.com). `from` can stay `Curbquote <onboarding@resend.dev>` until the domain is verified. Optional: `RESEND_FROM`.
-3. If no Resend key is set, the function forwards via [FormSubmit AJAX](https://formsubmit.co/ajax-documentation) to `https://formsubmit.co/ajax/hello@curbquote.ai`. **The first production send requires clicking FormSubmit’s confirmation email in hello@** (the ImprovMX inbox that forwards to the founder). No FormSubmit account is required.
+3. If no Resend key is set, the function forwards via [FormSubmit AJAX](https://formsubmit.co/ajax-documentation) to `https://formsubmit.co/ajax/hello@curbquote.ai`. If that server-side call is blocked (FormSubmit sits behind Cloudflare), the browser retries the same FormSubmit AJAX POST so the lead can still leave the device. **The first production send requires clicking FormSubmit’s confirmation email in hello@** (the ImprovMX inbox that forwards to the founder). No FormSubmit account is required.
 4. If `/api/lead` fails, the UI still keeps the localStorage copy and asks the homeowner to email hello@ or retry. It does not claim a crew was matched.
 
 Do not commit API keys. Set `RESEND_API_KEY` in the Vercel dashboard when you want Resend.

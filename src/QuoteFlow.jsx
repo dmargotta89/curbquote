@@ -682,7 +682,18 @@ export default function QuoteFlow() {
           <div className="actions">
             {!delivered && (
               <>
-                <a className="btn primary" href={fallbackMailto(submittedLead || { ...form, metroName: metro?.name, estimateLow: estimate.low, estimateHigh: estimate.high, createdAt: new Date().toISOString() })}>
+                <a
+                  className="btn primary"
+                  href={fallbackMailto(
+                    submittedLead || {
+                      ...form,
+                      metroName: metro?.name,
+                      estimateLow: estimate.low,
+                      estimateHigh: estimate.high,
+                      createdAt: new Date().toISOString(),
+                    },
+                  )}
+                >
                   Email hello@curbquote.ai
                 </a>
                 <button type="button" className="btn ghost" onClick={retrySend} disabled={busy}>
