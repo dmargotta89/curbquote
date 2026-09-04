@@ -1,7 +1,7 @@
 export const INBOX = "hello@curbquote.ai";
 
 export const MATCHING_DISCLAIMER =
-  "Matching is not automated. Do not contact crews from this email. CoS will RFQ 3 DFW owner-operators by hand.";
+  "Matching is not automated. Do not contact crews from this email. CoS will RFQ 3 Tampa Bay owner-operators by hand.";
 
 function money(value) {
   const n = Number(value);
