@@ -110,10 +110,10 @@ export default function TermsPage() {
         <div className="terms-section">
           <h2>Where we work</h2>
           <p>
-            Curbquote starts crew matching and walkthroughs in Dallas–Fort
-            Worth. You can already get a photo estimate in Atlanta, Phoenix,
-            Charlotte, and Tampa Bay. Matching rolls out market by market,
-            DFW first.
+            Curbquote starts crew matching and walkthroughs in Tampa Bay.
+            You can already get a photo estimate in Dallas–Fort Worth,
+            Atlanta, Phoenix, and Charlotte. Matching rolls out market by
+            market, Tampa Bay first.
           </p>
         </div>
 

@@ -251,9 +251,10 @@ export default function QuoteFlow() {
         <section>
           <h1>An honest ballpark for painting the outside of your house.</h1>
           <p className="lede">
-            Homeowners in five metros upload a photo, answer a few questions,
-            and get a range — not a contract price. Curbquote is not the
-            painter. Local owner-operator crews are matched later.
+            Starting in Tampa Bay. Homeowners in five metros upload a photo,
+            answer a few questions, and get a range — not a contract price.
+            Curbquote is not the painter. Local owner-operator crews are
+            matched later.
           </p>
           <p className="hero-note">
             We do not hold a contractor license, and this is not a bid you can
@@ -282,9 +283,10 @@ export default function QuoteFlow() {
             <>
               <h1>An honest ballpark for painting the outside of your house.</h1>
               <p className="lede">
-                Homeowners in five metros upload a photo, answer a few questions,
-                and get a range — not a contract price. Curbquote is not the
-                painter. Local owner-operator crews are matched later.
+                Starting in Tampa Bay. Homeowners in five metros upload a photo,
+                answer a few questions, and get a range — not a contract price.
+                Curbquote is not the painter. Local owner-operator crews are
+                matched later.
               </p>
               <p className="hero-note">
                 We do not hold a contractor license, and this is not a bid you can
@@ -400,7 +402,7 @@ export default function QuoteFlow() {
               id="location"
               type="text"
               autoComplete="street-address"
-              placeholder="75001 or 1842 Maple Ave, Plano"
+              placeholder="33606 or 1842 Bayshore Blvd, Tampa"
               value={form.location}
               onChange={(event) => patch({ location: event.target.value })}
             />
@@ -611,7 +613,7 @@ export default function QuoteFlow() {
                 id="phone"
                 type="tel"
                 autoComplete="tel"
-                placeholder="(214) 555-0199"
+                placeholder="(813) 555-0199"
                 value={form.phone}
                 onChange={(event) => patch({ phone: event.target.value })}
               />

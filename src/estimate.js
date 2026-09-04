@@ -1,5 +1,12 @@
 export const METROS = [
   {
+    id: "tpa",
+    name: "Tampa Bay",
+    region: "West Central Florida",
+    rateLow: 2.75,
+    rateHigh: 4.7,
+  },
+  {
     id: "dfw",
     name: "Dallas–Fort Worth",
     region: "North Texas",
@@ -26,13 +33,6 @@ export const METROS = [
     region: "Carolinas",
     rateLow: 2.7,
     rateHigh: 4.5,
-  },
-  {
-    id: "tpa",
-    name: "Tampa Bay",
-    region: "West Central Florida",
-    rateLow: 2.75,
-    rateHigh: 4.7,
   },
 ];
 

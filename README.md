@@ -1,6 +1,6 @@
 # Curbquote
 
-Photo-to-quote site for residential exterior painting. Homeowners in **Dallas–Fort Worth**, **Atlanta**, **Phoenix**, **Charlotte**, and **Tampa Bay** upload a house photo, answer a short form, and get an honest **ballpark estimate** — not a contract bid. Curbquote is not the painter and does not claim a license. Crews are third-party owner-operators matched later.
+Photo-to-quote site for residential exterior painting. First pilot is **Tampa Bay**. Homeowners there — and in **Dallas–Fort Worth**, **Atlanta**, **Phoenix**, and **Charlotte** — upload a house photo, answer a short form, and get an honest **ballpark estimate** — not a contract bid. Curbquote is not the painter and does not claim a license. Crews are third-party owner-operators matched later.
 
 v1 emails each quote request to **hello@curbquote.ai** from a same-origin `/api/lead` function. A copy is also saved in this browser’s `localStorage`, so [/leads](/leads) still works if the network fails. Matching is **not** automated — do not contact crews from the lead email.
 
@@ -15,7 +15,7 @@ Open the URL Vite prints (usually http://localhost:5173).
 
 A first-time visit should read as: add a photo of the house → answer a few questions → see an estimate range → leave name, phone, and email.
 
-If this connection looks like Dallas–Fort Worth, Atlanta, Phoenix, Charlotte, or Tampa Bay, Curbquote preselects that metro and skips the city picker. The guess is a small “change” chip — IP lookup is often wrong on a VPN or when traveling. If the lookup is missing, unclear, or outside those five, the metro picker is shown as before.
+If this connection looks like Tampa Bay, Dallas–Fort Worth, Atlanta, Phoenix, or Charlotte, Curbquote preselects that metro and skips the city picker. The guess is a small “change” chip — IP lookup is often wrong on a VPN or when traveling. If the lookup is missing, unclear, or outside those five, the metro picker is shown as before.
 
 `npm run dev` also serves `/api/lead` so a submit can leave the browser without `vercel dev`. Production on Vercel uses the function in `api/lead.js`.
 
